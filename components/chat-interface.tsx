@@ -112,6 +112,8 @@ export default function ChatInterface() {
             }
           }
         }
+        // Set loading to false after streaming is complete
+        setIsLoading(false)
       }
     } catch (error) {
       console.error("Error in chat:", error)
@@ -213,7 +215,7 @@ export default function ChatInterface() {
               disabled={isLoading}
               className="flex-1"
             />
-            <Button type="submit" disabled={isLoading || !input.trim()}>
+            <Button type="submit" disabled={isLoading || !input.trim()} className="w-10 h-10 p-0 flex items-center justify-center">
               {isLoading ? (
                 <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
