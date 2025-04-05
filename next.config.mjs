@@ -1,3 +1,6 @@
+import { withNetlify } from '@netlify/next';
+
+
 let userConfig = undefined
 try {
   // try to import ESM first
