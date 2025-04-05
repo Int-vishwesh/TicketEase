@@ -34,7 +34,7 @@ export async function POST(req: Request) {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
 
-      const response = await fetch("http://localhost:8000/chat", {
+      const response = await fetch("https://ticketease-backend.vercel.app/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

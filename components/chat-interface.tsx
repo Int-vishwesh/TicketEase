@@ -48,7 +48,7 @@ export default function ChatInterface() {
 
     try {
       // Call the API
-      const response = await fetch("http://localhost:8000/chat", {
+      const response = await fetch("https://ticketease-backend.vercel.app/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
