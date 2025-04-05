@@ -48,4 +48,5 @@ if (userConfig) {
   }
 }
 
-export default nextConfig
+export default withNetlify(nextConfig)
+
