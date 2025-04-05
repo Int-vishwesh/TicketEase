@@ -47,16 +47,13 @@ export default function ChatInterface() {
     setIsLoading(true)
 
     try {
-      // Prepare messages for the API
-      const apiMessages = [...messages, userMessage].map(({ role, content }) => ({ role, content }))
-
       // Call the API
-      const response = await fetch("/api/chat", {
+      const response = await fetch("http://localhost:8000/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ messages: apiMessages }),
+        body: JSON.stringify({ query: userMessage.content }),
       })
 
       if (!response.ok) {
