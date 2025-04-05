@@ -1,13 +1,14 @@
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from typing import List, Dict, Any, Optional
 import groq
 import os
 import json
 import asyncio
+import sys
 from dotenv import load_dotenv
+from typing import List, Dict
 
 # Load environment variables
 load_dotenv()
@@ -24,7 +25,11 @@ app.add_middleware(
 )
 
 # Initialize Groq client
-groq_client = groq.Groq(api_key=os.getenv("GROQ_API_KEY", ""))
+groq_api_key = os.getenv("GROQ_API_KEY", "")
+if not groq_api_key:
+    print("Error: GROQ_API_KEY environment variable not set.", file=sys.stderr)
+    sys.exit(1)
+groq_client = groq.Groq(api_key=groq_api_key)
 
 # System prompt for the AI
 SYSTEM_PROMPT = """
@@ -48,73 +53,54 @@ Always be helpful, friendly, and concise in your responses.
 When a booking is confirmed, generate a fake confirmation number in the format: BOOK-XXXX-XXXX where X is an alphanumeric character.
 """
 
-class ChatMessage(BaseModel):
-    role: str
-    content: str
-
-class ChatRequest(BaseModel):
-    messages: List[ChatMessage]
-
-async def stream_chat_response(messages: List[Dict[str, str]]):
-    """Stream the chat response from Groq API"""
-    try:
-        # Add system message if not present
-        if messages and messages[0]["role"] != "system":
-            messages.insert(0, {"role": "system", "content": SYSTEM_PROMPT})
-        
-        # Create the completion with streaming
-        completion = groq_client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=messages,
-            temperature=0.7,
-            max_tokens=1024,
-            top_p=1,
-            stream=True,
-        )
-        
-        # Stream the response
-        for chunk in completion:
-            if chunk.choices and chunk.choices[0].delta and chunk.choices[0].delta.content:
-                content = chunk.choices[0].delta.content
-                # Format as SSE
-                yield f"data: {json.dumps({'type': 'text', 'value': content})}\n\n"
-                # Small delay to prevent overwhelming the client
-                await asyncio.sleep(0.01)
-        
-        # End of stream marker
-        yield f"data: [DONE]\n\n"
-    
-    except Exception as e:
-        error_message = f"Error generating response: {str(e)}"
-        yield f"data: {json.dumps({'type': 'error', 'value': error_message})}\n\n"
-        yield f"data: [DONE]\n\n"
+# Pydantic model for the user's input string
+class UserInput(BaseModel):
+    query: str
 
 @app.post("/chat")
-async def chat(request: Request):
-    """Endpoint to handle chat requests and stream responses"""
-    try:
-        # Parse the request body
-        body = await request.json()
-        messages = body.get("messages", [])
-        
-        # Convert messages to the format expected by Groq
-        groq_messages = [
-            {"role": msg["role"], "content": msg["content"]} 
-            for msg in messages
-        ]
-        
-        # Return streaming response
-        return StreamingResponse(
-            stream_chat_response(groq_messages),
-            media_type="text/event-stream"
-        )
-    
-    except Exception as e:
-        return Response(
-            content=json.dumps({"error": str(e)}),
-            status_code=500,
-            media_type="application/json"
-        )
+async def chat(request: UserInput):
+    """
+    Endpoint to handle a single user query string and stream responses.
+    Takes a JSON body like: {"query": "Your message here"}
+    """
+
+    async def stream_generator():
+        try:
+            # Prepare messages for Groq
+            messages: List[Dict[str, str]] = [
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": request.query}
+            ]
+
+            completion = groq_client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=messages,
+                temperature=0.7,
+                max_tokens=1024,
+                top_p=1,
+                stream=True,
+            )
+
+            # Stream the response
+            for chunk in completion:
+                if chunk.choices and chunk.choices[0].delta and chunk.choices[0].delta.content:
+                    content = chunk.choices[0].delta.content
+                    # Format as SSE
+                    yield f"data: {json.dumps({'type': 'text', 'value': content})}\n\n"
+                    # Small delay to prevent overwhelming the client
+                    await asyncio.sleep(0.01)
+
+            # End of stream marker
+            yield f"data: [DONE]\n\n"
+
+        except Exception as e:
+            error_message = f"Error generating response: {str(e)}"
+            # Send error message via SSE
+            yield f"data: {json.dumps({'type': 'error', 'value': error_message})}\n\n"
+            yield f"data: [DONE]\n\n"
+
+    # Return streaming response using the generator
+    return StreamingResponse(stream_generator(), media_type="text/event-stream")
 
 @app.get("/health")
 async def health_check():
