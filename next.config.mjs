@@ -1,6 +1,3 @@
-import { withNetlify } from '@netlify/next';
-
-
 let userConfig = undefined
 try {
   // try to import ESM first
@@ -51,5 +48,4 @@ if (userConfig) {
   }
 }
 
-export default withNetlify(nextConfig)
-
+export default nextConfig
