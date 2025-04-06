@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Ticket Booking Assistant",
+  title: "TicketEase : your booking ally",
   description: "AI-powered ticket booking assistant for various events and appointments",
   generator: "v0.dev",
 };

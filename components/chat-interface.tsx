@@ -148,24 +148,15 @@ export default function ChatInterface() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 p-4">
+    <div className="flex flex-col min-h-screen bg-[#666] p-4">
       <Card className="w-full max-w-3xl mx-auto flex-1 flex flex-col">
         <CardHeader className="border-b">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Ticket className="h-5 w-5" />
-              <span>Ticket Booking Assistant</span>
-            </CardTitle>
-            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-              Online
-            </Badge>
-          </div>
         </CardHeader>
 
         <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center text-gray-500 space-y-4">
-              <MessageCircle className="h-12 w-12 opacity-20" />
+              <MessageCircle className="h-12 w-20 opacity-50" />
               <div>
                 <p className="font-medium">Start a conversation</p>
                 <p className="text-sm">Ask about booking tickets for doctor appointments, amusement parks, and more!</p>
@@ -206,14 +197,14 @@ export default function ChatInterface() {
           <div ref={messagesEndRef} />
         </CardContent>
 
-        <CardFooter className="border-t p-4">
+        <CardFooter className="border-t  p-4">
           <form onSubmit={handleSubmit} className="flex w-full gap-2">
             <Input
               value={input}
               onChange={handleInputChange}
               placeholder="Type your message..."
               disabled={isLoading}
-              className="flex-1"
+              className="flex-1 border-black"
             />
             <Button type="submit" disabled={isLoading || !input.trim()} className="w-10 h-10 p-0 flex items-center justify-center">
               {isLoading ? (
