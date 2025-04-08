@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { InteractiveGrid } from "@/components/ui/interactive-grid"
 import { ShineBorder } from "@/components/ui/shine-border"
 import { Play } from "lucide-react"
+import Link from "next/link"
 import Image from "next/image"
 
 export function HeroSection() {
@@ -27,7 +28,7 @@ export function HeroSection() {
               Demo
             </Button>
             <Button variant="secondary" className="bg-white text-black hover:bg-gray-100">
-              Get your tickets
+              <Link href="/home">Get Your Tickets now</Link>
             </Button>
           </div>
         </div>
@@ -46,7 +47,7 @@ export function HeroSection() {
               <div className="bg-black/20 backdrop-blur-sm p-4 rounded-xl w-[90%] h-[70%] flex">
                 <div className="flex-1 pr-2">
                   <Image
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Browser-HZNDOssbyLixIa4lABR27yelWXveQ0.png"
+                    src="main-screen.png"
                     alt="Browser Preview"
                     width={800}
                     height={600}
@@ -56,7 +57,7 @@ export function HeroSection() {
                 </div>
                 <div className="flex-1 pl-2">
                   <Image
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Editor%20Window-sJ4sXlXpgDhv7gLvQylqH5VTb3L0rc.png"
+                    src="main-bot.png"
                     alt="Code Editor"
                     width={800}
                     height={600}
