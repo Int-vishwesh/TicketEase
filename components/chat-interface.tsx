@@ -19,7 +19,16 @@ export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [sessionId, setSessionId] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Load session ID from localStorage on component mount
+  useEffect(() => {
+    const savedSessionId = localStorage.getItem('booking_session_id')
+    if (savedSessionId) {
+      setSessionId(savedSessionId)
+    }
+  }, [])
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -47,13 +56,16 @@ export default function ChatInterface() {
     setIsLoading(true)
 
     try {
-      // Call the API
+      // Call the API with session ID if available
       const response = await fetch("https://ticketease-backend.vercel.app/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ query: userMessage.content }),
+        body: JSON.stringify({ 
+          query: userMessage.content,
+          session_id: sessionId 
+        }),
       })
 
       if (!response.ok) {
@@ -104,6 +116,10 @@ export default function ChatInterface() {
                     })
                   } else if (parsed.type === "error") {
                     throw new Error(parsed.value)
+                  } else if (parsed.type === "session") {
+                    // Save the session ID
+                    setSessionId(parsed.session_id)
+                    localStorage.setItem('booking_session_id', parsed.session_id)
                   }
                 } catch (e) {
                   console.error("Error parsing SSE data:", e)
@@ -147,10 +163,26 @@ export default function ChatInterface() {
     setInput(prompt)
   }
 
+  // Function to clear conversation and start fresh
+  const handleNewConversation = () => {
+    setMessages([])
+    setSessionId(null)
+    localStorage.removeItem('booking_session_id')
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-[#666] p-4">
       <Card className="w-full max-w-3xl mx-auto flex-1 flex flex-col">
-        <CardHeader className="border-b">
+        <CardHeader className="border-b flex justify-between items-center">
+          <div className="flex items-center">
+            <Ticket className="h-5 w-5 mr-2" />
+            <CardTitle>Ticket Booking Assistant</CardTitle>
+          </div>
+          {messages.length > 0 && (
+            <Button variant="outline" size="sm" onClick={handleNewConversation}>
+              New Conversation
+            </Button>
+          )}
         </CardHeader>
 
         <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -197,7 +229,7 @@ export default function ChatInterface() {
           <div ref={messagesEndRef} />
         </CardContent>
 
-        <CardFooter className="border-t  p-4">
+        <CardFooter className="border-t p-4">
           <form onSubmit={handleSubmit} className="flex w-full gap-2">
             <Input
               value={input}
@@ -219,4 +251,3 @@ export default function ChatInterface() {
     </div>
   )
 }
-
