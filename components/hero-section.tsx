@@ -27,9 +27,9 @@ export function HeroSection() {
               <Play className="w-4 h-4" />
               Demo
             </Button>
-            <Button variant="secondary" className="bg-white text-black hover:bg-gray-100">
-              <Link href="/home">Get Your Tickets now</Link>
-            </Button>
+            <Button variant="secondary" className="cursor-pointer bg-white text-black hover:bg-gray-100 hover:shadow-2xl hover:shadow-white">
+          <Link href="/home"> Book Now </Link>
+        </Button>
           </div>
         </div>
 
