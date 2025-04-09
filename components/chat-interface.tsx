@@ -310,10 +310,7 @@ export default function ChatInterface() {
     <div className="flex flex-col min-h-screen bg-[#666] p-4">
       <Card className="w-full max-w-3xl mx-auto flex-1 flex flex-col">
         <CardHeader className="border-b flex justify-between items-center">
-          <div className="flex items-center">
-            <Ticket className="h-5 w-5 mr-2" />
-            <CardTitle>Ticket Booking Assistant</CardTitle>
-          </div>
+        <br />
           <div className="flex gap-2">
             {messages.length > 0 && (
               <Button variant="outline" size="sm" onClick={handleNewConversation}>
