@@ -313,12 +313,12 @@ export default function ChatInterface() {
         <br />
           <div className="flex gap-2">
             {messages.length > 0 && (
-              <Button variant="outline" size="sm" onClick={handleNewConversation}>
+              <Button variant="outline" size="sm" className="border-b-2" onClick={handleNewConversation}>
                 New Conversation
               </Button>
             )}
             <Link href="/dashboard">
-              <Button variant="secondary" size="sm">
+              <Button variant="secondary" className="border-b-2" size="sm">
                 View Bookings
               </Button>
             </Link>
