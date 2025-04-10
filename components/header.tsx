@@ -16,7 +16,7 @@ export function Header() {
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-3">
             <Image
-              src="iconT.png"
+              src="icon.png"
               alt="Crop Studio"
               width={32}
               height={32}
@@ -35,14 +35,14 @@ export function Header() {
           <Link href="#" className="text-sm text-gray-300 hover:text-white transition-colors">
             venues
           </Link>
-          <Link href="#" className="text-sm text-gray-300 hover:text-white transition-colors">
+          <Link href="/contact" className="text-sm text-gray-300 hover:text-white transition-colors">
             Contact us 
           </Link>
         </nav>
 
-        {/* ✅ Conditionally render the button */}
+        {/* Conditionally render the button */}
         <Button variant="secondary" className="bg-white text-black hover:bg-gray-100 hover:shadow-2xl hover:shadow-white">
-          <Link href={isHome ? "/dashboard" : "/home"}>
+          <Link href={isHome ? "/dashboard" : "/login"}>
             {isHome ? "Dashboard" : "Get Started"}
           </Link>
         </Button>

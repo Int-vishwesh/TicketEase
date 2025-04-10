@@ -1,4 +1,4 @@
-import ChatInterface from "@/components/chat-interface"
+
 import { Header } from "@/components/header"
 import { HeroSection } from "@/components/hero-section"
 
