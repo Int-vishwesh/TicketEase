@@ -9,7 +9,7 @@ import Link from "next/link"
 export default function ContactPage() {
   const teamMembers = [
     {
-      name: "Anikesh Sharma",
+      name: "Anikesh Singh",
       role: "Btech CSE ",
       image: "person-placeholder.jpg",
       email: "rahul@ticketease.com",
