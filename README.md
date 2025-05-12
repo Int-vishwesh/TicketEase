@@ -1,6 +1,6 @@
 # Ticket Booking AI Chatbot
 
-A full-stack ticket booking chatbot with a Next.js frontend and FastAPI backend using the Groq API.
+TicketEase is an AI-powered ticket booking chatbot developed as a 3rd-year group project. It streamlines the ticket reservation process by providing users with an intuitive chat interface, enabling them to book tickets for various events and appointments effortlessly. The system leverages advanced AI capabilities to understand user queries and provide real-time assistance.
 
 ## Project Structure
 
