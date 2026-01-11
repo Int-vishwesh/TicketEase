@@ -27,6 +27,14 @@ const nextConfig = {
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/external/:path*',
+        destination: 'http://localhost:8000/:path*',
+      },
+    ]
+  },
 }
 
 if (userConfig) {
