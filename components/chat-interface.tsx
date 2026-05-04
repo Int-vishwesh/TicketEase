@@ -35,12 +35,30 @@ export default function ChatInterface() {
   const [bookingInProgress, setBookingInProgress] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // Load session ID from localStorage on component mount
+  // Load session from Supabase
   useEffect(() => {
-    const savedSessionId = localStorage.getItem('booking_session_id')
-    if (savedSessionId) {
-      setSessionId(savedSessionId)
+    const initSession = async () => {
+      // Dynamically import supabase to avoid SSR issues
+      const { supabase } = await import("@/lib/supabase")
+
+      const { data: { session } } = await supabase.auth.getSession()
+
+      if (session?.user) {
+        // Use Supabase user ID
+        localStorage.setItem("user_id", session.user.id)
+        console.log("Logged in as:", session.user.id)
+      } else {
+        // Fallback or handle unauthenticated state
+        console.log("No active Supabase session")
+      }
+
+      const savedSessionId = localStorage.getItem('booking_session_id')
+      if (savedSessionId) {
+        setSessionId(savedSessionId)
+      }
     }
+
+    initSession()
   }, [])
 
   useEffect(() => {
@@ -55,17 +73,17 @@ export default function ChatInterface() {
     const lastAssistantMessage = [...messages]
       .reverse()
       .find(msg => msg.role === "assistant")
-      
+
     if (lastAssistantMessage) {
       const content = lastAssistantMessage.content
-      
+
       // Look for booking confirmation pattern
       const confirmationMatch = content.match(/BOOK-[A-Z0-9]{4}-[A-Z0-9]{4}/)
-      
+
       if (confirmationMatch && !bookingInProgress) {
         const confirmationId = confirmationMatch[0]
         setBookingInProgress(true)
-        
+
         // Extract booking details from conversation
         saveBooking(confirmationId, messages)
       }
@@ -76,28 +94,28 @@ export default function ChatInterface() {
   const saveBooking = (confirmationId: string, conversationMessages: Message[]) => {
     // Default booking with minimum information
     let bookingType = "unknown"
-    const bookingDetails: {[key: string]: any} = {}
-    
+    const bookingDetails: { [key: string]: any } = {}
+
     // Extract booking details by analyzing conversation
     // This is a simple implementation - you would want more robust parsing in production
     const userMessages = conversationMessages.filter(msg => msg.role === "user")
     const assistantMessages = conversationMessages.filter(msg => msg.role === "assistant")
-    
+
     // Try to detect booking type
     const fullConversation = conversationMessages.map(msg => msg.content.toLowerCase()).join(" ")
-    
+
     if (fullConversation.includes("concert") || fullConversation.includes("arijit singh")) {
       bookingType = "concert"
-      
+
       // Extract concert details
       if (fullConversation.includes("arijit singh")) {
         bookingDetails.artist = "Arijit Singh"
       }
-      
+
       if (fullConversation.includes("chandigarh")) {
         bookingDetails.venue = "Chandigarh"
       }
-      
+
       // Try to find number of tickets
       const ticketMatch = fullConversation.match(/(\d+)\s+tickets?/i)
       if (ticketMatch) {
@@ -111,10 +129,10 @@ export default function ChatInterface() {
           }
         }
       }
-    } 
+    }
     else if (fullConversation.includes("doctor") || fullConversation.includes("appointment")) {
       bookingType = "doctor"
-      
+
       // Try to extract doctor name (simple implementation)
       const doctorMatch = fullConversation.match(/dr\.\s+([a-z]+)/i)
       if (doctorMatch) {
@@ -122,21 +140,21 @@ export default function ChatInterface() {
       } else {
         bookingDetails.doctor = "Specialist"
       }
-      
+
       bookingDetails.clinic = "Local Clinic"
     }
     else if (fullConversation.includes("movie") || fullConversation.includes("cinema")) {
       bookingType = "movie"
       bookingDetails.movie = "Movie"
       bookingDetails.cinema = "Local Cinema"
-      
+
       // Try to find number of tickets
       const ticketMatch = fullConversation.match(/(\d+)\s+tickets?/i)
       if (ticketMatch) {
         bookingDetails.tickets = ticketMatch[1]
       }
     }
-    
+
     // Create the booking object
     const newBooking: Booking = {
       id: Date.now().toString(),
@@ -146,21 +164,21 @@ export default function ChatInterface() {
       date: new Date().toISOString(),
       status: "confirmed"
     }
-    
+
     // Save to localStorage
     try {
       const existingBookings = localStorage.getItem("bookings")
       let bookings: Booking[] = []
-      
+
       if (existingBookings) {
         bookings = JSON.parse(existingBookings)
       }
-      
+
       bookings.push(newBooking)
       localStorage.setItem("bookings", JSON.stringify(bookings))
-      
+
       console.log("Booking saved:", newBooking)
-      
+
       // Reset booking flag after short delay (to prevent duplicate detections)
       setTimeout(() => {
         setBookingInProgress(false)
@@ -191,15 +209,20 @@ export default function ChatInterface() {
     setIsLoading(true)
 
     try {
+      // Get user_id from localStorage
+      const userId = localStorage.getItem("user_id")
+
       // Call the API with session ID if available
-      const response = await fetch("https://ticketease-backend.vercel.app/chat", {
+      // Using localhost for development/database storage verification
+      const response = await fetch("http://localhost:8000/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           query: userMessage.content,
-          session_id: sessionId 
+          session_id: sessionId,
+          user_id: userId
         }),
       })
 
@@ -243,9 +266,12 @@ export default function ChatInterface() {
                   if (parsed.type === "text") {
                     setMessages((prev) => {
                       const updated = [...prev]
-                      const lastMessage = updated[updated.length - 1]
-                      if (lastMessage && lastMessage.role === "assistant") {
-                        lastMessage.content += parsed.value
+                      const lastIndex = updated.length - 1
+                      if (lastIndex >= 0 && updated[lastIndex].role === "assistant") {
+                        updated[lastIndex] = {
+                          ...updated[lastIndex],
+                          content: updated[lastIndex].content + parsed.value
+                        }
                       }
                       return updated
                     })
@@ -310,7 +336,7 @@ export default function ChatInterface() {
     <div className="flex flex-col min-h-screen bg-[#666] p-4">
       <Card className="w-full max-w-3xl mx-auto flex-1 flex flex-col">
         <CardHeader className="border-b flex justify-between items-center">
-        <br />
+          <br />
           <div className="flex gap-2">
             {messages.length > 0 && (
               <Button variant="outline" size="sm" className="border-b-2 border-black" onClick={handleNewConversation}>
@@ -357,9 +383,8 @@ export default function ChatInterface() {
             messages.map((message) => (
               <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`max-w-[80%] rounded-lg p-3 ${
-                    message.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
-                  }`}
+                  className={`max-w-[80%] rounded-lg p-3 ${message.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
+                    }`}
                 >
                   {message.content}
                 </div>

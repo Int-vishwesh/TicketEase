@@ -3,12 +3,12 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { usePathname } from "next/navigation" 
+import { usePathname } from "next/navigation"
 
 export function Header() {
   const pathname = usePathname();  //current route path
 
-  const isHome = pathname === "/home";  //if we're on /home
+  const isChat = pathname === "/chat";  //if we're on /chat
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
@@ -26,24 +26,32 @@ export function Header() {
           </Link>
         </div>
         <nav className="hidden md:flex items-center gap-8">
-          <Link href="#" className="text-sm text-gray-300 hover:text-white transition-colors">
-            tickets
-          </Link>
-          <Link href="#" className="text-sm text-gray-300 hover:text-white transition-colors">
+          
+          <Link href="/events" className="text-sm text-gray-300 hover:text-white transition-colors">
             events
           </Link>
-          <Link href="#" className="text-sm text-gray-300 hover:text-white transition-colors">
+          <Link href="/venues" className="text-sm text-gray-300 hover:text-white transition-colors">
             venues
           </Link>
           <Link href="/contact" className="text-sm text-gray-300 hover:text-white transition-colors">
-            Contact us 
+            Contact us
           </Link>
         </nav>
 
         {/* Conditionally render the button */}
-        <Button variant="secondary" className="bg-white text-black hover:bg-gray-100 hover:shadow-2xl hover:shadow-white">
-          <Link href={isHome ? "/dashboard" : "/login"}>
-            {isHome ? "Dashboard" : "Get Started"}
+        <Button asChild variant="secondary" className="bg-white text-black hover:bg-gray-100 hover:shadow-2xl hover:shadow-white">
+          <Link 
+            href={
+              pathname === "/" ? "/login" : 
+              pathname === "/dashboard" ? "/chat" : 
+              "/dashboard"
+            }
+          >
+            {
+              pathname === "/" ? "Get Started" : 
+              pathname === "/dashboard" ? "Book New" : 
+              "Dashboard"
+            }
           </Link>
         </Button>
       </div>

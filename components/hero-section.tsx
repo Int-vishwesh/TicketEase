@@ -14,22 +14,25 @@ export function HeroSection() {
         className="relative z-10 max-w-6xl mx-auto px-6"
         borderClassName="border border-white/10 rounded-xl overflow-hidden"
       >
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 relative z-10">
           <h1 className="text-white text-4xl md:text-6xl font-bold mb-6 py-2 tracking-tight">
-          Skip the Line. <br /> Embrace the Experience.
+            Skip the Line. <br /> Embrace the Experience.
           </h1>
           <p className="text-gray-400 text-lg mb-8 max-w-2xl mx-auto">
             Discover trending events, concerts, festivals, and more. Secure your spot in seconds.
             <br /> One Click. All Access
           </p>
-          <div className="flex gap-4 justify-center">
-            <Button variant="outline" className="text-white gap-2 border-white/10 bg-white/5 hover:bg-white/10">
-              <Play className="w-4 h-4" />
-              Demo
+          <div className="flex gap-4 justify-center relative z-20">
+            <Button asChild variant="outline" className="text-white gap-2 border-white/10 bg-white/5 hover:bg-white/10 cursor-pointer pointer-events-auto">
+              <Link href="/login">
+                Get Started
+              </Link>
             </Button>
-            <Button variant="secondary" className="cursor-pointer bg-white text-black hover:bg-gray-100 hover:shadow-2xl hover:shadow-white">
-          <Link href="/home"> Book Now </Link>
-        </Button>
+            <Button asChild variant="secondary" className="cursor-pointer pointer-events-auto bg-white text-black hover:bg-gray-100 hover:shadow-2xl hover:shadow-white">
+              <Link href="/chat">
+                Book Now
+              </Link>
+            </Button>
           </div>
         </div>
 

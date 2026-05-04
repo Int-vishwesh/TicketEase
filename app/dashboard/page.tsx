@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Calendar, Ticket, Clock, Users, AlertCircle } from "lucide-react"
 import Link from "next/link"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 
 interface Booking {
   id: string
@@ -13,8 +15,10 @@ interface Booking {
   details: {
     [key: string]: any
   }
-  confirmationId: string
-  date: string
+  confirmationId?: string
+  confirmation_id?: string
+  date?: string
+  created_at?: string
   status: string
 }
 
@@ -23,40 +27,27 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Load bookings from localStorage
-    const loadBookings = () => {
+    // Load bookings from API
+    const loadBookings = async () => {
       try {
-        const savedBookings = localStorage.getItem("bookings")
-        if (savedBookings) {
-          setBookings(JSON.parse(savedBookings))
+        // Get user ID from Supabase
+        const { supabase } = await import("@/lib/supabase")
+        const { data: { session } } = await supabase.auth.getSession()
+
+        const userId = session?.user?.id || localStorage.getItem("user_id")
+
+        if (!userId) {
+          console.log("No user ID found")
+          setLoading(false)
+          return
+        }
+
+        const response = await fetch(`http://localhost:8000/bookings/${userId}`)
+        if (response.ok) {
+          const data = await response.json()
+          setBookings(data)
         } else {
-          // If no bookings found, create demo data for visual purposes
-          setBookings([
-            {
-              id: "1",
-              type: "concert",
-              details: {
-                artist: "Arijit Singh",
-                venue: "Sector 17, Chandigarh",
-                tickets: 2
-              },
-              confirmationId: "BOOK-AF7G-12SD",
-              date: new Date(Date.now() - 86400000).toISOString(),
-              status: "confirmed"
-            },
-            {
-              id: "2",
-              type: "doctor",
-              details: {
-                doctor: "Dr. Sharma",
-                speciality: "Cardiologist",
-                clinic: "City Hospital, Chandigarh"
-              },
-              confirmationId: "BOOK-78HJ-34KL",
-              date: new Date(Date.now() - 172800000).toISOString(),
-              status: "confirmed"
-            }
-          ])
+          console.error("Failed to fetch bookings")
         }
         setLoading(false)
       } catch (error) {
@@ -69,11 +60,12 @@ export default function DashboardPage() {
   }, [])
 
   // Helper function to format date
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "Date unavailable"
     const date = new Date(dateString)
     return new Intl.DateTimeFormat('en-US', {
       day: 'numeric',
-      month: 'short', 
+      month: 'short',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
@@ -115,7 +107,7 @@ export default function DashboardPage() {
   // Get booking details as formatted text
   const getBookingDetails = (booking: Booking) => {
     const { type, details } = booking
-    
+
     switch (type.toLowerCase()) {
       case 'concert':
         return `${details.artist || 'Artist'} at ${details.venue || 'Venue'} - ${details.tickets || '0'} ticket(s)`
@@ -134,6 +126,7 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen p-8 pt-24 bg-gray-50">
+      <Header />
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight">Booking Dashboard</h1>
@@ -144,7 +137,7 @@ export default function DashboardPage() {
 
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">Your Bookings</h2>
-          <Link href="/home">
+          <Link href="/chat">
             <Button variant="outline">New Booking</Button>
           </Link>
         </div>
@@ -161,7 +154,7 @@ export default function DashboardPage() {
               <p className="text-muted-foreground text-center mb-6">
                 You haven't made any bookings yet. Start by booking a ticket for an event or appointment.
               </p>
-              <Link href="/home">
+              <Link href="/chat">
                 <Button>Book a Ticket</Button>
               </Link>
             </CardContent>
@@ -181,8 +174,8 @@ export default function DashboardPage() {
                     </Badge>
                   </div>
                   <CardDescription className="text-sm flex items-center gap-1 mt-1">
-                    <Clock className="h-3 w-3" /> 
-                    {formatDate(booking.date)}
+                    <Clock className="h-3 w-3" />
+                    {formatDate(booking.date || booking.created_at)}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -192,7 +185,7 @@ export default function DashboardPage() {
                   <div className="flex items-center gap-2 text-sm text-gray-600 mt-3">
                     <span className="font-medium">Confirmation:</span>
                     <span className="bg-gray-100 px-2 py-1 rounded font-mono">
-                      {booking.confirmationId}
+                      {booking.confirmationId || booking.confirmation_id}
                     </span>
                   </div>
                 </CardContent>
@@ -205,6 +198,8 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+
+      <Footer />
     </main>
   )
 }

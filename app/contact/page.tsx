@@ -5,40 +5,17 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button"
 import { Github, Linkedin, Mail } from "lucide-react"
 import Link from "next/link"
+import { Footer } from "@/components/footer"
 
 export default function ContactPage() {
   const teamMembers = [
     {
-      name: "Anikesh Singh",
+      name: "Sanjay Hira",
       role: "Btech CSE ",
       image: "person-placeholder.jpg",
       email: "rahul@ticketease.com",
       github: "https://github.com/rahulsharma",
       linkedin: "https://linkedin.com/in/rahulsharma"
-    },
-    {
-      name: "Vishwesh Aryan",
-      role: "Btech CSE ",
-      image: "person-placeholder.jpg",
-      email: "jerryaryan123@gmail.com.com",
-      github: "https://github.com/int-vishwesh",
-      linkedin: "https://linkedin.com/in/vishwesh-aryan-"
-    },
-    {
-      name: "Vishesh",
-      role: "Btech CSE ",
-      image: "person-placeholder.jpg",
-      email: "arjun@gmail.com",
-      github: "https://github.com/arjunsingh",
-      linkedin: "https://linkedin.com/in/arjunsingh"
-    },
-    {
-      name: "Vivek Bhat",
-      role: "Btech CSE ",
-      image: "person-placeholder.jpg",
-      email: "neha@ticketease.com",
-      github: "https://github.com/nehagupta",
-      linkedin: "https://linkedin.com/in/nehagupta"
     }
   ]
 
@@ -105,12 +82,10 @@ export default function ContactPage() {
           </p>
         </div>
 
-        <div className="text-center py-8 border-t border-gray-200">
-          <p className="text-sm text-gray-600">
-            &copy; {new Date().getFullYear()} TicketEase. All rights reserved.
-          </p>
-        </div>
+        {/* Removed redundant footer in contact page */}
       </div>
+
+      <Footer />
     </main>
   )
 }
